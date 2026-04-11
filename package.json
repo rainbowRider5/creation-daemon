@@ -1,0 +1,51 @@
+{
+  "name": "creation-daemon",
+  "version": "0.1.0",
+  "description": "Orchestration layer on top of Claude Code that turns a single developer into a team",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "cc": "dist/bin/cc.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/bin/cc.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "keywords": [
+    "claude",
+    "ai",
+    "orchestration",
+    "github",
+    "automation"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@octokit/rest": "^21.0.0",
+    "chalk": "^5.4.0",
+    "commander": "^13.0.0",
+    "ora": "^8.2.0",
+    "yaml": "^2.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "eslint": "^10.2.0",
+    "eslint-config-prettier": "^10.1.8",
+    "jiti": "^2.6.1",
+    "lefthook": "^2.1.5",
+    "prettier": "^3.8.2",
+    "typescript": "^5.7.0",
+    "typescript-eslint": "^8.58.1",
+    "vitest": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
