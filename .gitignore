@@ -1,6 +1,7 @@
 node_modules/
 dist/
-docs/.local
+docs/.local/
 *.tsbuildinfo
 .env
 .lefthook-local.yml
+*.local.*
