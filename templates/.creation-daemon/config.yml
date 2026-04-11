@@ -1,0 +1,16 @@
+github:
+  owner: auto-detected
+  repo: auto-detected
+  token_env: GITHUB_TOKEN
+
+branches:
+  pattern: 'cc/{issue}-{slug}'
+  base: main
+
+loop:
+  poll_interval: 300
+  max_concurrent: 1
+  auto_approve_refinements: false
+
+notifications:
+  on_blocked: github_comment
