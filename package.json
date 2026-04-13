@@ -3,14 +3,14 @@
   "version": "0.1.0",
   "description": "Orchestration layer on top of Claude Code that turns a single developer into a team",
   "type": "module",
-  "main": "dist/index.js",
+  "main": "dist/src/server.js",
   "bin": {
-    "cc": "dist/bin/cc.js"
+    "cc-server": "dist/src/server.js"
   },
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "start": "node dist/bin/cc.js",
+    "start": "node dist/src/server.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint .",
@@ -24,15 +24,14 @@
     "ai",
     "orchestration",
     "github",
-    "automation"
+    "automation",
+    "mcp"
   ],
   "license": "MIT",
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "@octokit/rest": "^21.0.0",
-    "chalk": "^5.4.0",
-    "commander": "^13.0.0",
-    "ora": "^8.2.0",
-    "yaml": "^2.7.0"
+    "zod": "^3.25.0"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
