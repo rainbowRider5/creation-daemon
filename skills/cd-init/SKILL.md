@@ -21,9 +21,10 @@ Run this once after installing the creation-daemon plugin. Every step is idempot
 2. **Create artifact directories.** Run `mkdir -p docs/issues docs/visions` via Bash.
 
 3. **Append the CLAUDE.md addendum (idempotent).**
+   - Resolve the plugin root first. The `CLAUDE_PLUGIN_ROOT` env var is set by Claude Code for the plugin process but is not expanded inside tool arguments — run `echo "$CLAUDE_PLUGIN_ROOT"` via Bash and capture the absolute path.
+   - Read the addendum body from `<plugin-root>/templates/CLAUDE.md-addendum.md` (pass the resolved absolute path to Read, not the literal `${CLAUDE_PLUGIN_ROOT}` string).
    - Check whether a file named `CLAUDE.md` exists at the project root (Read).
    - The idempotency marker is the literal heading `## Working with creation-daemon`.
-   - The addendum body lives in the plugin at `${CLAUDE_PLUGIN_ROOT}/templates/CLAUDE.md-addendum.md`. Read it from there.
    - If `CLAUDE.md` does not exist: Write a new file with the addendum body.
    - If `CLAUDE.md` exists and does NOT contain the marker heading: append the addendum body (separated by a blank line) using Edit or by reading + writing the concatenated contents.
    - If `CLAUDE.md` exists and already contains the marker heading: skip — report "already configured".

@@ -18,7 +18,8 @@
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "release": "npm version patch && npm run build && git add -f dist && git commit --amend --no-edit && git push --follow-tags"
+    "version": "npm run build && git add -f dist",
+    "release": "npm version patch && git push --follow-tags"
   },
   "keywords": [
     "claude",

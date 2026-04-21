@@ -30,10 +30,10 @@ Process the highest-priority actionable ticket.
 
 4. **Dispatch by state.** Look at the ticket's current state:
    - `draft` → follow the `/cd-refine` process on this ticket.
-   - `refined` → the user approves refined specs manually; call `cd_transition_state` to `ready` only if the refinement artifact has no `Open Questions`. Otherwise, call `cd_block_ticket` with the unanswered questions.
+   - `refined` → the autonomous loop auto-approves when safe: if the refinement artifact has no `## Open Questions` section (or that section is empty), call `cd_transition_state` with `new_state: ready`. Otherwise, call `cd_block_ticket` with the unanswered questions so a human can answer. (A human running `/cd-refine` can still manually block instead of advancing.)
    - `ready` → follow the `/cd-implement` process.
    - `in-progress` → resume implementation (check out the branch, continue from the last commit).
-   - `in-review` → follow the `/cd-review` process.
+   - `in-review` → follow the `/cd-review` process. If the PR is already merged, `/cd-review` will transition the ticket to `done`.
    - (`blocked` and `done` tickets are filtered out by `cd_pick_next_ticket`.)
 
 5. **Report action taken.** One or two sentences: ticket number, what you did, what state it's in now.

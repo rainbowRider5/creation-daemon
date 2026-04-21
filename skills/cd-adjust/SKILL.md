@@ -24,7 +24,13 @@ The argument format is `<issue-number> <feedback text>` — the first whitespace
 
 2. **Load context.** Call `cd_get_ticket` with the parsed issue number. Read the refinement artifact and any prior adjustments.
 
-3. **Check out the ticket branch.** Run `git checkout cc/<issue-number>-<slug>` via Bash. The slug is recorded in the ticket's meta.json (from `cd_get_ticket`) or derivable from the title.
+3. **Check out the ticket branch.** Discover the branch name via Bash rather than re-deriving the slug (the title may have changed since implementation):
+
+   ```
+   git branch --list "cc/<issue-number>-*" --format="%(refname:short)" | head -n1
+   ```
+
+   Check out the result. If the command returns empty, the ticket has no implementation branch yet — stop and tell the user.
 
 4. **Make the change.** Apply the feedback. Keep edits minimal and focused.
 
