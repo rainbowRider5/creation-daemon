@@ -3,11 +3,11 @@ pre-commit:
   commands:
     lint:
       glob: '*.{ts,js,mjs}'
-      staged_files_command: git diff --cached --name-only --diff-filter=ACM
+      staged_files_command: "git diff --cached --name-only --diff-filter=ACM -- ':!dist/'"
       run: npx eslint {staged_files} --fix && git add {staged_files}
     format:
       glob: '*.{ts,js,mjs,json,yml,yaml,md}'
-      staged_files_command: git diff --cached --name-only --diff-filter=ACM
+      staged_files_command: "git diff --cached --name-only --diff-filter=ACM -- ':!dist/'"
       run: npx prettier --write {staged_files} && git add {staged_files}
     typecheck:
       run: npx tsc --noEmit
