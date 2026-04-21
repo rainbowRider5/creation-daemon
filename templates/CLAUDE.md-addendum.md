@@ -19,6 +19,6 @@ This project uses creation-daemon for ticket-driven development.
 
 ### Conventions
 
-- Commits on ticket branches are prefixed `[cc#<n>]`
-- Branch names follow `cc/<n>-<slug>`
+- Commits on ticket branches are prefixed `[cd#<n>]`
+- Branch names follow `cd/<n>-<slug>`
 - Priority defaults to `cd:p2-medium`

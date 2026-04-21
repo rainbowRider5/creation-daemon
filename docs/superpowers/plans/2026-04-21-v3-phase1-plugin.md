@@ -173,8 +173,8 @@ This project uses creation-daemon for ticket-driven development.
 
 ### Conventions
 
-- Commits on ticket branches are prefixed `[cc#<n>]`
-- Branch names follow `cc/<n>-<slug>`
+- Commits on ticket branches are prefixed `[cd#<n>]`
+- Branch names follow `cd/<n>-<slug>`
 - Priority defaults to `cd:p2-medium`
 - The idempotency marker for `/cd-init` is the `## Working with creation-daemon` heading — do not rename it.
 ```
@@ -488,18 +488,18 @@ Implement ticket #$ARGUMENTS.
 
 3. **Create (or resume) the branch.**
    - Derive `<slug>` as a short kebab-case form of the ticket title (max 50 chars).
-   - Branch name: `cc/$ARGUMENTS-<slug>`.
-   - Run via Bash: `git checkout -b cc/$ARGUMENTS-<slug>` — or `git checkout cc/$ARGUMENTS-<slug>` if it already exists.
+   - Branch name: `cd/$ARGUMENTS-<slug>`.
+   - Run via Bash: `git checkout -b cd/$ARGUMENTS-<slug>` — or `git checkout cd/$ARGUMENTS-<slug>` if it already exists.
 
 4. **Implement following the spec.**
    - If the `superpowers:executing-plans` skill is available, invoke it using the refinement artifact as the plan.
    - Use `superpowers:test-driven-development` if available for any new code.
    - Otherwise, follow the refinement artifact's Approach section directly — write a failing test first, implement to make it pass, refactor.
-   - Commit frequently with messages prefixed `[cc#$ARGUMENTS]`.
+   - Commit frequently with messages prefixed `[cd#$ARGUMENTS]`.
 
 5. **Push and open the PR.**
-   - `git push -u origin cc/$ARGUMENTS-<slug>` via Bash.
-   - `gh pr create --title "[cc#$ARGUMENTS] <title>" --body "<body>" --head cc/$ARGUMENTS-<slug>` via Bash. The body should reference the issue: `Closes #$ARGUMENTS`.
+   - `git push -u origin cd/$ARGUMENTS-<slug>` via Bash.
+   - `gh pr create --title "[cd#$ARGUMENTS] <title>" --body "<body>" --head cd/$ARGUMENTS-<slug>` via Bash. The body should reference the issue: `Closes #$ARGUMENTS`.
    - Capture the PR number from the output.
 
 6. **Write the implementation artifact.** Call `cd_write_artifact` with:
@@ -532,7 +532,7 @@ Implement ticket #$ARGUMENTS.
 ## Rules
 
 - Follow the refinement artifact. If the spec is wrong, call `cd_block_ticket` with the specific conflict rather than guessing.
-- Every commit message starts with `[cc#$ARGUMENTS]`.
+- Every commit message starts with `[cd#$ARGUMENTS]`.
 - Do not modify files outside the ticket's declared scope.
 - All tests must pass locally before you push.
 - If you hit an architectural uncertainty you cannot resolve, call `cd_block_ticket` — do not guess.
@@ -581,7 +581,7 @@ Review the PR for ticket #$ARGUMENTS.
 
 1. **Load context.** Call `cd_get_ticket` with `issue_number: $ARGUMENTS`. Read the refinement artifact (spec) and implementation artifact.
 
-2. **Find the PR.** The implementation artifact references the PR. If not, run `gh pr list --search "cc#$ARGUMENTS" --state open` via Bash to find it.
+2. **Find the PR.** The implementation artifact references the PR. If not, run `gh pr list --search "cd#$ARGUMENTS" --state open` via Bash to find it.
 
 3. **Read the diff.** Run `gh pr diff <pr-number>` via Bash.
 
@@ -674,14 +674,14 @@ The argument format is `<issue-number> <feedback text>` — the first whitespace
 
 2. **Load context.** Call `cd_get_ticket` with the parsed issue number. Read the refinement artifact and any prior adjustments.
 
-3. **Check out the ticket branch.** Run `git checkout cc/<issue-number>-<slug>` via Bash. The slug is recorded in the ticket's meta.json (from `cd_get_ticket`) or derivable from the title.
+3. **Check out the ticket branch.** Run `git checkout cd/<issue-number>-<slug>` via Bash. The slug is recorded in the ticket's meta.json (from `cd_get_ticket`) or derivable from the title.
 
 4. **Make the change.** Apply the feedback. Keep edits minimal and focused.
 
 5. **Commit.** Run via Bash:
 
    ```
-   git commit -am "[cc#<issue-number>] adjust: <short summary of feedback>"
+   git commit -am "[cd#<issue-number>] adjust: <short summary of feedback>"
    ```
 
 6. **Push.** Run `git push` via Bash. This updates the open PR.
@@ -1020,7 +1020,7 @@ Run this checklist against a disposable GitHub test repo after tagging a Phase 1
 [ ] /cd-init is idempotent: second run reports "already configured" and does not duplicate the addendum
 [ ] /cd-brainstorm "toy feature" produces docs/visions/<slug>.md and ≥2 draft tickets on GitHub
 [ ] /cd-refine #N writes docs/issues/N/002-refinement.md and swaps the label draft → refined
-[ ] /cd-implement #N creates branch cc/N-<slug>, commits prefixed [cc#N], opens PR, label → in-review
+[ ] /cd-implement #N creates branch cd/N-<slug>, commits prefixed [cd#N], opens PR, label → in-review
 [ ] /cd-review #N (approve path) approves PR; label transitions to done after merge
 [ ] /cd-review #N (request-changes path) transitions label back to in-progress
 [ ] /cd-adjust N "change X" appends commit to the PR branch and writes an adjustment artifact

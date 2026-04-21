@@ -1,6 +1,6 @@
 {
   "name": "creation-daemon",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Orchestration layer on top of Claude Code that turns a single developer into a team",
   "type": "module",
   "main": "dist/src/server.js",

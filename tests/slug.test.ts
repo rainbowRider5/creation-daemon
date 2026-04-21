@@ -18,6 +18,6 @@ describe('slugify', () => {
 
 describe('branchName', () => {
   it('builds branch name from pattern', () => {
-    expect(branchName('cc/{issue}-{slug}', 42, 'Add user auth')).toBe('cc/42-add-user-auth');
+    expect(branchName('cd/{issue}-{slug}', 42, 'Add user auth')).toBe('cd/42-add-user-auth');
   });
 });

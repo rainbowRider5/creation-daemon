@@ -76,7 +76,7 @@ creation-daemon/
 - `src/loop/` (all 4 files) — logic moves to `tickets/priority.ts` and `tools.ts`
 - `src/utils/logger.ts` — MCP server uses protocol, not terminal output
 - `src/github/client.ts`, `prs.ts`, `issues.ts`, `comments.ts`, `labels.ts` — consolidated into `src/github.ts`
-- `bin/cd-server.ts` — replaced by `bin/cd-init.ts` (Phase 1)
+- Legacy CLI entrypoint — replaced by the `/cd-init` skill (Phase 1)
 - `tests/artifacts.test.ts`, `tests/blocker.test.ts`, `tests/scheduler.test.ts` — replaced by new tests
 
 ### Files Ported
@@ -301,7 +301,7 @@ Eight markdown files in `skills/`, copied into target projects by `cd-init`. Eac
 Single CLI command. Inside a target project, it:
 1. Detects GitHub remote
 2. Creates `docs/issues/` and `docs/visions/`
-3. Copies skills into `.claude/skills/cc/`
+3. Copies skills into `.claude/skills/cd/`
 4. Writes MCP config to `.claude/mcp.json`
 5. Appends instructions to project's `CLAUDE.md`
 6. Calls `cd_ensure_labels`

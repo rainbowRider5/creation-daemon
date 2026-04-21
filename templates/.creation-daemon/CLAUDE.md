@@ -4,8 +4,8 @@ This project uses creation-daemon for automated ticket management and implementa
 
 ## Conventions
 
-- Commit messages for automated work are prefixed with `[cc#<issue>]`
-- Branches follow the pattern `cc/<issue>-<slug>`
+- Commit messages for automated work are prefixed with `[cd#<issue>]`
+- Branches follow the pattern `cd/<issue>-<slug>`
 - Artifacts are stored in `docs/issues/<issue>/`
 - Vision documents are stored in `docs/visions/`
 

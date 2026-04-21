@@ -72,7 +72,7 @@ src/
   config/     # Config loading and defaults
   utils/      # Shared utilities
 tests/        # Vitest test files
-templates/    # Template files for /cd-init
+templates/    # Template files for cd init
 bin/          # CLI entry point
 ```
 

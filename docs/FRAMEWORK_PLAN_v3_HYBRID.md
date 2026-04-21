@@ -44,7 +44,7 @@
 
 | v2 Component                                   | Replaced By                                 | Why                                                                                  |
 | ---------------------------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------ |
-| `bin/cd-server.ts` CLI entry point                    | Claude Code Skills (`.claude/skills/`)      | Users invoke `/refine 42` instead of `/cd-refine 42`. No separate CLI install.        |
+| Legacy CLI entry point                         | Claude Code Skills (`.claude/skills/`)      | Users invoke `/cd-refine 42` via a skill instead of a standalone CLI binary.         |
 | `src/claude/runner.ts` (spawn Claude CLI)      | Native `claude -p` with `--permission-mode` | Claude Code already handles subprocess spawning, context, permissions.               |
 | `src/claude/context.ts` (gather docs + code)   | CLAUDE.md + Skill instructions              | Skills can embed context-loading instructions. Claude reads CLAUDE.md automatically. |
 | `src/utils/git.ts` (branch management)         | `claude --worktree`                         | Native worktrees create isolated branches, auto-cleanup, support parallel agents.    |
@@ -277,10 +277,10 @@ Implement ticket #$ARGUMENTS.
 
 ## Process
 1. Read the ticket, spec, and all artifacts using `cd_get_ticket`
-2. Create a branch: `cc/<issue>-<slug>` (or use existing if in-progress)
+2. Create a branch: `cd/<issue>-<slug>` (or use existing if in-progress)
 3. Transition to "in-progress" with `cd_transition_state`
 4. Implement the changes following the spec
-5. Commit with messages prefixed: `[cc#<issue>]`
+5. Commit with messages prefixed: `[cd#<issue>]`
 6. Write an implementation artifact with `cd_write_artifact` (type: "implementation")
 7. Push and open a PR with `gh pr create`
 8. Transition to "in-review" with `cd_transition_state`
@@ -368,7 +368,7 @@ Apply the following adjustment to ticket being discussed or specified: $ARGUMENT
 2. Understand the requested change
 3. Make the changes on the existing branch
 4. Write an adjustment artifact with `cd_write_artifact` (type: "adjustment")
-5. Commit with `[cc#<issue>] adjust: <summary>`
+5. Commit with `[cd#<issue>] adjust: <summary>`
 6. Push to update the PR
 ```
 
@@ -525,7 +525,7 @@ This gives you:
 
 ---
 
-### 4. Setup (`/cd-init` → remains a small CLI or a skill)
+### 4. Setup (legacy CLI init → shipped as the `/cd-init` skill)
 
 The only CLI command worth keeping, or can be a skill too:
 
@@ -676,7 +676,7 @@ creation-daemon → decides WHICH ticket to work on, WHEN, and manages the lifec
 | Custom TypeScript         | ~3,000-4,000 LOC                | ~1,000-1,500 LOC                            |
 | Dependencies              | commander, octokit, many utils  | `@modelcontextprotocol/sdk`, `gh` CLI       |
 | Install process           | `npm install -g creation-daemon`  | `npm install -g cd-server` + `cd-init`      |
-| User interface            | Separate `cd-server` CLI               | Native Claude Code skills (`/refine`, etc.) |
+| User interface            | Separate CLI binary (legacy)    | Native Claude Code skills (`/cd-refine`, etc.) |
 | Git management            | Custom branch/commit helpers    | Native `--worktree`                         |
 | Agent spawning            | Custom Claude CLI wrapper       | Native `claude -p`                          |
 | Persistent loop           | Custom daemon (fragile)         | GitHub Actions (robust)                     |

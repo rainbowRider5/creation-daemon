@@ -27,7 +27,7 @@ The argument format is `<issue-number> <feedback text>` — the first whitespace
 3. **Check out the ticket branch.** Discover the branch name via Bash rather than re-deriving the slug (the title may have changed since implementation):
 
    ```
-   git branch --list "cc/<issue-number>-*" --format="%(refname:short)" | head -n1
+   git branch --list "cd/<issue-number>-*" --format="%(refname:short)" | head -n1
    ```
 
    Check out the result. If the command returns empty, the ticket has no implementation branch yet — stop and tell the user.
@@ -37,7 +37,7 @@ The argument format is `<issue-number> <feedback text>` — the first whitespace
 5. **Commit.** Run via Bash:
 
    ```
-   git commit -am "[cc#<issue-number>] adjust: <short summary of feedback>"
+   git commit -am "[cd#<issue-number>] adjust: <short summary of feedback>"
    ```
 
 6. **Push.** Run `git push` via Bash. This updates the open PR.

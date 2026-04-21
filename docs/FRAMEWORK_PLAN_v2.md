@@ -1,6 +1,8 @@
 # creation-daemon — Framework Plan v2
 
 > **Superseded by [FRAMEWORK_PLAN_v3_HYBRID.md](./FRAMEWORK_PLAN_v3_HYBRID.md)** — v3 replaces the monolithic CLI approach with a hybrid architecture: MCP Server (orchestration brain) + Claude Code Skills (user-facing commands) + GitHub Actions (persistent loop). ~60% of v2's custom code is eliminated by leveraging Claude Code's native features (worktrees, skills, `-p` mode, `/loop`).
+>
+> **Naming note**: this document originally described a monolithic CLI binary under an earlier project name. After the project rename to `creation-daemon`, the command examples below have been normalized to the `/cd-*` skill invocations that actually shipped in v3. The architectural intent is unchanged.
 
 ## Vision
 
@@ -115,7 +117,7 @@ docs/issues/42/
   "title": "Add user authentication",
   "status": "in-review",
   "priority": "p1-high",
-  "branch": "cc/42-add-user-auth",
+  "branch": "cd/42-add-user-auth",
   "pr": 87,
   "dependencies": [38, 41],
   "artifacts": [
@@ -189,7 +191,7 @@ creation-daemon/
 ├── LICENSE (MIT)
 │
 ├── bin/
-│   └── cd-server.ts                      # CLI entry point
+│   └── cd-server.ts               # CLI entry point
 │
 ├── src/
 │   ├── commands/
@@ -285,7 +287,7 @@ github:
   token_env: GITHUB_TOKEN # env var name
 
 branches:
-  pattern: 'cc/{issue}-{slug}'
+  pattern: 'cd/{issue}-{slug}'
   base: main
 
 loop:
@@ -329,7 +331,7 @@ Each agent prompt follows a consistent structure:
 - Always write your output as an artifact to docs/issues/<n>/
 - If you need human input, output a BLOCKED marker with your questions
 - Never modify files outside the ticket's scope
-- Commit frequently with descriptive messages prefixed: [cc#<issue>]
+- Commit frequently with descriptive messages prefixed: [cd#<issue>]
 
 ## Output Format
 
@@ -348,7 +350,7 @@ The orchestrator will detect this, post it to GitHub, and move on.
 
 ```
 ┌─────────────────────────────────────────┐
-│              /cd-loop starts             │
+│             /cd-loop starts             │
 └──────────────────┬──────────────────────┘
                    │
                    ▼

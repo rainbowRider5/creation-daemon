@@ -12,7 +12,7 @@ export function slugify(title: string): string {
 
 /**
  * Build a branch name from the config pattern.
- * Pattern: "cc/{issue}-{slug}" → "cc/42-add-user-auth"
+ * Pattern: "cd/{issue}-{slug}" → "cd/42-add-user-auth"
  */
 export function branchName(pattern: string, issueNumber: number, title: string): string {
   return pattern.replace('{issue}', String(issueNumber)).replace('{slug}', slugify(title));

@@ -1,6 +1,6 @@
 {
   "name": "creation-daemon",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Ticket-driven orchestration layer that turns Claude Code into an autonomous team",
   "author": { "name": "maciejdrzewiecki" },
   "license": "MIT"

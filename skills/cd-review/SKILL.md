@@ -20,7 +20,7 @@ Review the PR for ticket #$ARGUMENTS.
 
 1. **Load context.** Call `cd_get_ticket` with `issue_number: $ARGUMENTS`. Read the refinement artifact (spec) and implementation artifact.
 
-2. **Find the PR.** The implementation artifact references the PR. If not, run `gh pr list --search "cc#$ARGUMENTS" --state all` via Bash to find it (include merged/closed so post-merge finalization still works).
+2. **Find the PR.** The implementation artifact references the PR. If not, run `gh pr list --search "cd#$ARGUMENTS" --state all` via Bash to find it (include merged/closed so post-merge finalization still works).
 
 3. **Check PR state first.** Run `gh pr view <pr-number> --json state -q .state` via Bash. If the result is `MERGED`, the review has already happened and the PR is in — call `cd_transition_state` with `new_state: done` and stop. This makes `/cd-review` safe to re-run after a merge to finalize the ticket.
 

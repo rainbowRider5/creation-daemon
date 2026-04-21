@@ -21,7 +21,7 @@ claude
 Then inside the session:
 
 ```
-/plugin install github:rainbowRider5/creation-daemon@v0.1.0
+/plugin install github:rainbowRider5/creation-daemon@v0.2.0
 # restart or reload Claude Code
 /cd-init
 ```

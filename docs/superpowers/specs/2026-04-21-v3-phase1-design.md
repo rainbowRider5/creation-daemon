@@ -14,7 +14,7 @@ Phase 1 adds no new MCP tools — the server from Phase 0 is the contract. All n
 | MCP server distribution | Bundled in plugin, launched from `${CLAUDE_PLUGIN_ROOT}/dist/src/server.js` | No separate npm install, zero runtime dependencies for user                   |
 | Repo structure          | Repo root IS the plugin                                                     | Avoids a `plugin/` subfolder that duplicates source                           |
 | `dist/` shipping        | Committed on release tags only                                              | Main stays clean; tag installs just work                                      |
-| Skill prefix            | `cc-` on every skill (incl. `/cd-loop`)                                     | No collisions with superpowers or other plugins; consistent                   |
+| Skill prefix            | `cd-` on every skill (incl. `/cd-loop`)                                     | No collisions with superpowers or other plugins; consistent                   |
 | Process delegation      | Thin skills delegate to superpowers with inline fallback                    | Zero duplication, works standalone                                            |
 | First-run setup         | `/cd-init` skill                                                            | Explicit, auditable, idempotent, re-runnable                                  |
 | Phase 1 scope           | All 9 skills                                                                | End-to-end round-trip is Phase 1's acceptance criterion                       |
@@ -181,9 +181,9 @@ This lets the skill work standalone while opportunistically leveraging superpowe
 - **Steps:**
   1. `cd_get_ticket` to load spec + artifacts.
   2. `cd_transition_state` to `in-progress`.
-  3. Create branch `cc/<N>-<slug>` via Bash (`git checkout -b ...`).
+  3. Create branch `cd/<N>-<slug>` via Bash (`git checkout -b ...`).
   4. Delegate implementation to `superpowers:executing-plans` using the refinement artifact as the plan; use `superpowers:test-driven-development` for any new code.
-  5. Commit with `[cc#N]` prefix.
+  5. Commit with `[cd#N]` prefix.
   6. Push and `gh pr create` (via the server's `createPR` tool surface — see note).
   7. `cd_write_artifact` with `type: "implementation"`.
   8. `cd_transition_state` to `in-review`.
@@ -212,7 +212,7 @@ Note: Phase 0's `src/github.ts` exports `createPR` but it is not currently expos
 - **Steps:**
   1. `cd_get_ticket` to load current state.
   2. Check the ticket's branch is checked out (Bash).
-  3. Make the change, commit `[cc#N] adjust: <summary>`.
+  3. Make the change, commit `[cd#N] adjust: <summary>`.
   4. Push.
   5. `cd_write_artifact` with `type: "adjustment"`.
 
@@ -276,8 +276,8 @@ This project uses creation-daemon for ticket-driven development.
 
 ### Conventions
 
-- Commits on ticket branches are prefixed `[cc#<n>]`
-- Branch names follow `cc/<n>-<slug>`
+- Commits on ticket branches are prefixed `[cd#<n>]`
+- Branch names follow `cd/<n>-<slug>`
 - Priority defaults to `cd:p2-medium`
 ```
 
@@ -338,7 +338,7 @@ Executed against a disposable GitHub repo (`<user>/creation-daemon-phase1-e2e`) 
 [ ] /cd-init is idempotent (second run reports "already configured")
 [ ] /cd-brainstorm "toy feature" produces vision doc + 2 draft tickets on GitHub
 [ ] /cd-refine #N writes refinement artifact, swaps label draft → refined
-[ ] /cd-implement #N creates branch, commits prefixed [cc#N], opens PR, label → in-review
+[ ] /cd-implement #N creates branch, commits prefixed [cd#N], opens PR, label → in-review
 [ ] /cd-review #N (approve path) approves PR; label transitions to done on merge
 [ ] /cd-review #N (request-changes path) transitions label back to in-progress
 [ ] /cd-adjust #N "change X" appends commit, writes adjustment artifact

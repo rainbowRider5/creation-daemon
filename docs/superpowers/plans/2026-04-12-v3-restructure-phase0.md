@@ -33,7 +33,7 @@
 ### Task 1: Clean Sweep — Delete v2 Files and Update Dependencies
 
 **Files:**
-- Delete: `src/commands/` (all 8 files), `src/claude/` (2 files), `src/config/` (2 files), `src/loop/` (4 files), `src/utils/logger.ts`, `src/github/client.ts`, `src/github/prs.ts`, `src/github/issues.ts`, `src/github/comments.ts`, `src/github/labels.ts`, `src/artifacts/meta.ts`, `src/artifacts/reader.ts`, `src/artifacts/writer.ts`, `bin/cd-server.ts`
+- Delete: `src/commands/` (all 8 files), `src/claude/` (2 files), `src/config/` (2 files), `src/loop/` (4 files), `src/utils/logger.ts`, `src/github/client.ts`, `src/github/prs.ts`, `src/github/issues.ts`, `src/github/comments.ts`, `src/github/labels.ts`, `src/artifacts/meta.ts`, `src/artifacts/reader.ts`, `src/artifacts/writer.ts`, and the legacy CLI entrypoint under `bin/`
 - Delete: `tests/artifacts.test.ts`, `tests/blocker.test.ts`, `tests/scheduler.test.ts`
 - Modify: `package.json`
 
@@ -44,7 +44,7 @@ rm -rf src/commands src/claude src/config src/loop
 rm -f src/utils/logger.ts
 rm -rf src/github
 rm -rf src/artifacts
-rm -f bin/cd-server.ts
+rm -rf bin
 ```
 
 - [ ] **Step 2: Delete v2 test stubs**

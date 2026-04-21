@@ -4,7 +4,7 @@ github:
   token_env: GITHUB_TOKEN
 
 branches:
-  pattern: 'cc/{issue}-{slug}'
+  pattern: 'cd/{issue}-{slug}'
   base: main
 
 loop:

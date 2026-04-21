@@ -26,18 +26,18 @@ Implement ticket #$ARGUMENTS.
 
 3. **Create (or resume) the branch.**
    - Derive `<slug>` as a short kebab-case form of the ticket title (max 50 chars).
-   - Branch name: `cc/$ARGUMENTS-<slug>`.
-   - Run via Bash: `git checkout -b cc/$ARGUMENTS-<slug>` — or `git checkout cc/$ARGUMENTS-<slug>` if it already exists.
+   - Branch name: `cd/$ARGUMENTS-<slug>`.
+   - Run via Bash: `git checkout -b cd/$ARGUMENTS-<slug>` — or `git checkout cd/$ARGUMENTS-<slug>` if it already exists.
 
 4. **Implement following the spec.**
    - If the `superpowers:executing-plans` skill is available, invoke it using the refinement artifact as the plan.
    - Use `superpowers:test-driven-development` if available for any new code.
    - Otherwise, follow the refinement artifact's Approach section directly — write a failing test first, implement to make it pass, refactor.
-   - Commit frequently with messages prefixed `[cc#$ARGUMENTS]`.
+   - Commit frequently with messages prefixed `[cd#$ARGUMENTS]`.
 
 5. **Push and open the PR.**
-   - `git push -u origin cc/$ARGUMENTS-<slug>` via Bash.
-   - `gh pr create --title "[cc#$ARGUMENTS] <title>" --body "<body>" --head cc/$ARGUMENTS-<slug>` via Bash. The body should reference the issue: `Closes #$ARGUMENTS`.
+   - `git push -u origin cd/$ARGUMENTS-<slug>` via Bash.
+   - `gh pr create --title "[cd#$ARGUMENTS] <title>" --body "<body>" --head cd/$ARGUMENTS-<slug>` via Bash. The body should reference the issue: `Closes #$ARGUMENTS`.
    - Capture the PR number from the output.
 
 6. **Write the implementation artifact.** Call `cd_write_artifact` with:
@@ -70,7 +70,7 @@ Implement ticket #$ARGUMENTS.
 ## Rules
 
 - Follow the refinement artifact. If the spec is wrong, call `cd_block_ticket` with the specific conflict rather than guessing.
-- Every commit message starts with `[cc#$ARGUMENTS]`.
+- Every commit message starts with `[cd#$ARGUMENTS]`.
 - Do not modify files outside the ticket's declared scope.
 - All tests must pass locally before you push.
 - If you hit an architectural uncertainty you cannot resolve, call `cd_block_ticket` — do not guess.

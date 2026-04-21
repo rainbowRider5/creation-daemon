@@ -17,7 +17,7 @@ Run this checklist against a disposable GitHub test repo after tagging a Phase 1
 [ ] /cd-init is idempotent: second run reports "already configured" and does not duplicate the addendum
 [ ] /cd-brainstorm "toy feature" produces docs/visions/<slug>.md and ≥2 draft tickets on GitHub
 [ ] /cd-refine #N writes docs/issues/N/002-refinement.md and swaps the label draft → refined
-[ ] /cd-implement #N creates branch cc/N-<slug>, commits prefixed [cc#N], opens PR, label → in-review
+[ ] /cd-implement #N creates branch cd/N-<slug>, commits prefixed [cd#N], opens PR, label → in-review
 [ ] /cd-review #N (approve path) approves PR; label transitions to done after merge
 [ ] /cd-review #N (request-changes path) transitions label back to in-progress
 [ ] /cd-adjust N "change X" appends commit to the PR branch and writes an adjustment artifact
