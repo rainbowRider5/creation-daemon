@@ -17,7 +17,8 @@
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "release": "npm version patch && npm run build && git add -f dist && git commit --amend --no-edit && git push --follow-tags"
   },
   "keywords": [
     "claude",
