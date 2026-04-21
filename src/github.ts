@@ -1,5 +1,4 @@
 import { Octokit } from '@octokit/rest';
-import { execSync } from 'node:child_process';
 import { getRemoteUrl, parseGitHubRemote } from './utils/git.js';
 
 export const CC_LABELS: Record<string, { color: string; description: string }> = {
@@ -16,18 +15,18 @@ export const CC_LABELS: Record<string, { color: string; description: string }> =
   'cc:p3-low': { color: 'c2e0c6', description: 'Nice to have' },
 };
 
-let _octokit: Octokit | null = null;
+let octokitInstance: Octokit | null = null;
 
 function getOctokit(): Octokit {
-  if (_octokit) return _octokit;
+  if (octokitInstance) return octokitInstance;
 
   const token = process.env.GITHUB_TOKEN;
   if (!token) {
     throw new Error('GITHUB_TOKEN environment variable is required');
   }
 
-  _octokit = new Octokit({ auth: token });
-  return _octokit;
+  octokitInstance = new Octokit({ auth: token });
+  return octokitInstance;
 }
 
 export function getRepoContext(): { owner: string; repo: string } {
@@ -78,14 +77,14 @@ export async function listIssuesByLabel(labelPrefix = 'cc:') {
   const { owner, repo } = getRepoContext();
   const octokit = getOctokit();
 
-  const { data } = await octokit.issues.listForRepo({
+  const issues = await octokit.paginate(octokit.issues.listForRepo, {
     owner,
     repo,
     state: 'open',
     per_page: 100,
   });
 
-  return data
+  return issues
     .filter((issue) => {
       const labels = issue.labels.map((l) => (typeof l === 'string' ? l : (l.name ?? '')));
       return labels.some((l) => l.startsWith(labelPrefix));
@@ -179,26 +178,11 @@ export async function getCommentsSince(issueNumber: number, since: string) {
   });
 
   return data
-    .filter((c) => !c.user?.login.includes('[bot]'))
+    .filter((c) => c.user?.type !== 'Bot')
     .map((c) => ({
       id: c.id,
       body: c.body ?? '',
       user: c.user?.login ?? 'unknown',
       created: c.created_at,
     }));
-}
-
-export function createPR(branch: string, title: string, body: string) {
-  const result = execSync(`gh pr create --head "${branch}" --title "${title}" --body "${body}"`, {
-    encoding: 'utf-8',
-  }).trim();
-
-  const prUrlMatch = /\/pull\/(\d+)/.exec(result);
-  const prNumber = prUrlMatch ? Number(prUrlMatch[1]) : null;
-  return { url: result, number: prNumber };
-}
-
-export function reviewPR(prNumber: number, action: 'approve' | 'request-changes', body?: string) {
-  const bodyFlag = body ? ` --body "${body}"` : '';
-  execSync(`gh pr review ${String(prNumber)} --${action}${bodyFlag}`, { encoding: 'utf-8' });
 }

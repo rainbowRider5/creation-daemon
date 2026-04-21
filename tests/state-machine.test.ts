@@ -3,6 +3,7 @@ import {
   validateTransition,
   getStateFromLabels,
   labelForState,
+  parsePriority,
   VALID_TRANSITIONS as _VALID_TRANSITIONS,
 } from '../src/tickets/state-machine.js';
 import type { TicketState } from '../src/tickets/state-machine.js';
@@ -92,5 +93,33 @@ describe('labelForState', () => {
   it('maps state to cc: label', () => {
     expect(labelForState('draft')).toBe('cc:draft');
     expect(labelForState('in-progress')).toBe('cc:in-progress');
+  });
+});
+
+describe('parsePriority', () => {
+  describe('when a known priority label is present', () => {
+    it('returns p0-critical', () => {
+      expect(parsePriority(['bug', 'cc:draft', 'cc:p0-critical'])).toBe('p0-critical');
+    });
+
+    it('returns p3-low', () => {
+      expect(parsePriority(['cc:p3-low'])).toBe('p3-low');
+    });
+  });
+
+  describe('when no priority label is present', () => {
+    it('defaults to p2-medium', () => {
+      expect(parsePriority(['cc:draft', 'bug'])).toBe('p2-medium');
+    });
+
+    it('defaults to p2-medium for empty labels', () => {
+      expect(parsePriority([])).toBe('p2-medium');
+    });
+  });
+
+  describe('when label looks priority-like but is not a known priority', () => {
+    it('ignores it and returns the default', () => {
+      expect(parsePriority(['cc:p99-fake', 'cc:draft'])).toBe('p2-medium');
+    });
   });
 });
