@@ -5,6 +5,7 @@ allowed-tools:
   - mcp__cd-server__cd_get_ticket
   - mcp__cd-server__cd_write_artifact
   - mcp__cd-server__cd_transition_state
+  - mcp__cd-server__cd_block_ticket
   - Bash
   - Read
   - Grep

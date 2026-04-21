@@ -22,4 +22,3 @@ This project uses creation-daemon for ticket-driven development.
 - Commits on ticket branches are prefixed `[cc#<n>]`
 - Branch names follow `cc/<n>-<slug>`
 - Priority defaults to `cd:p2-medium`
-- The idempotency marker for `/cd-init` is the `## Working with creation-daemon` heading — do not rename it.
