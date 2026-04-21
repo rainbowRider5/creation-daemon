@@ -10,6 +10,21 @@ export type ArtifactType =
   | 'review'
   | 'adjustment';
 
+const ARTIFACT_TYPES: ArtifactType[] = [
+  'draft',
+  'refinement',
+  'design',
+  'implementation',
+  'review',
+  'adjustment',
+];
+
+const ARTIFACT_FILE_PATTERN = /^(\d{3})-(.+)\.md$/;
+
+function isArtifactType(value: string): value is ArtifactType {
+  return (ARTIFACT_TYPES as string[]).includes(value);
+}
+
 export type IssueMeta = {
   issue: number;
   title: string;
@@ -18,7 +33,7 @@ export type IssueMeta = {
   branch: string | null;
   pr: number | null;
   dependencies: number[];
-  artifacts: { file: string; type: string; created: string }[];
+  artifacts: { file: string; type: ArtifactType; created: string }[];
   blocked: boolean;
   blockedQuestion: string | null;
   previousState: TicketState | null;
@@ -54,8 +69,11 @@ export function writeArtifact(
   baseDir = '.',
 ) {
   const dir = issueDir(issueNumber, baseDir);
-  const existing = readdirSync(dir).filter((f) => /^\d{3}-/.test(f) && f.endsWith('.md'));
-  const nextSeq = existing.length + 1;
+  const existingSeqs = readdirSync(dir)
+    .map((f) => ARTIFACT_FILE_PATTERN.exec(f))
+    .filter((m): m is RegExpExecArray => m !== null)
+    .map((m) => Number(m[1]));
+  const nextSeq = Math.max(0, ...existingSeqs) + 1;
   const filename = `${String(nextSeq).padStart(3, '0')}-${type}.md`;
   const filePath = join(dir, filename);
 
@@ -78,13 +96,19 @@ export function readArtifacts(issueNumber: number, baseDir = '.') {
   const dir = issueDir(issueNumber, baseDir);
   if (!existsSync(dir)) return [];
 
-  const files = readdirSync(dir)
-    .filter((f) => /^\d{3}-/.test(f) && f.endsWith('.md'))
-    .sort();
-
-  return files.map((file) => ({
-    file,
-    type: file.replace(/^\d{3}-/, '').replace(/\.md$/, ''),
-    content: readFileSync(join(dir, file), 'utf-8'),
-  }));
+  return readdirSync(dir)
+    .map((file) => ({ file, match: ARTIFACT_FILE_PATTERN.exec(file) }))
+    .filter((e): e is { file: string; match: RegExpExecArray } => e.match !== null)
+    .sort((a, b) => a.file.localeCompare(b.file))
+    .map(({ file, match }) => {
+      const type = match[2];
+      if (!isArtifactType(type)) {
+        throw new Error(`Unknown artifact type in file ${file}: ${type}`);
+      }
+      return {
+        file,
+        type,
+        content: readFileSync(join(dir, file), 'utf-8'),
+      };
+    });
 }

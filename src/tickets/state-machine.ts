@@ -19,6 +19,9 @@ const STATE_LABELS: TicketState[] = [
   'blocked',
 ];
 
+const PRIORITY_LABELS: Priority[] = ['p0-critical', 'p1-high', 'p2-medium', 'p3-low'];
+const DEFAULT_PRIORITY: Priority = 'p2-medium';
+
 export const VALID_TRANSITIONS: Record<TicketState, TicketState[]> = {
   draft: ['refined', 'done', 'blocked'],
   refined: ['ready', 'done', 'blocked'],
@@ -59,11 +62,15 @@ export function validateTransition(
   };
 }
 
+function isTicketState(value: string): value is TicketState {
+  return (STATE_LABELS as string[]).includes(value);
+}
+
 export function getStateFromLabels(labels: string[]): TicketState | null {
   const stateLabels = labels
     .filter((l) => l.startsWith('cd:'))
     .map((l) => l.slice(3))
-    .filter((s): s is TicketState => STATE_LABELS.includes(s as TicketState));
+    .filter(isTicketState);
 
   if (stateLabels.length === 0) return null;
   if (stateLabels.length > 1) {
@@ -74,4 +81,17 @@ export function getStateFromLabels(labels: string[]): TicketState | null {
 
 export function labelForState(state: TicketState) {
   return `cd:${state}`;
+}
+
+function isPriority(value: string): value is Priority {
+  return (PRIORITY_LABELS as string[]).includes(value);
+}
+
+export function parsePriority(labels: string[]): Priority {
+  for (const label of labels) {
+    if (!label.startsWith('cd:')) continue;
+    const value = label.slice(3);
+    if (isPriority(value)) return value;
+  }
+  return DEFAULT_PRIORITY;
 }

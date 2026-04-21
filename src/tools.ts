@@ -1,10 +1,13 @@
 import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { validateTransition, getStateFromLabels, labelForState } from './tickets/state-machine.js';
-import type { Priority } from './tickets/state-machine.js';
+import {
+  validateTransition,
+  getStateFromLabels,
+  labelForState,
+  parsePriority,
+} from './tickets/state-machine.js';
 import { sortByPriority, filterActionable, parseDependencies } from './tickets/priority.js';
 import { writeArtifact, readArtifacts, readMeta, writeMeta } from './artifacts/artifact-store.js';
-import type { ArtifactType } from './artifacts/artifact-store.js';
 import {
   createIssue,
   getIssue,
@@ -15,18 +18,37 @@ import {
   getCommentsSince,
 } from './github.js';
 
+const TICKET_STATE_SCHEMA = z.enum([
+  'draft',
+  'refined',
+  'ready',
+  'in-progress',
+  'in-review',
+  'done',
+  'blocked',
+]);
+
+const PRIORITY_SCHEMA = z.enum(['p0-critical', 'p1-high', 'p2-medium', 'p3-low']);
+
+const ARTIFACT_TYPE_SCHEMA = z.enum([
+  'draft',
+  'refinement',
+  'design',
+  'implementation',
+  'review',
+  'adjustment',
+]);
+
 export function registerTools(server: McpServer) {
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
-  server.tool(
+  server.registerTool(
     'cd_create_ticket',
-    'Create a GitHub issue with cd:draft label',
     {
-      title: z.string().describe('Issue title'),
-      body: z.string().describe('Issue body (markdown)'),
-      priority: z
-        .enum(['p0-critical', 'p1-high', 'p2-medium', 'p3-low'])
-        .default('p2-medium')
-        .describe('Priority level'),
+      description: 'Create a GitHub issue with cd:draft label',
+      inputSchema: {
+        title: z.string().describe('Issue title'),
+        body: z.string().describe('Issue body (markdown)'),
+        priority: PRIORITY_SCHEMA.default('p2-medium').describe('Priority level'),
+      },
     },
     async ({ title, body, priority }) => {
       const labels = ['cd:draft', `cd:${priority}`];
@@ -42,15 +64,13 @@ export function registerTools(server: McpServer) {
     },
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
-  server.tool(
+  server.registerTool(
     'cd_list_tickets',
-    'List all cd:* issues with their state and priority',
     {
-      state: z
-        .enum(['draft', 'refined', 'ready', 'in-progress', 'in-review', 'done', 'blocked'])
-        .optional()
-        .describe('Filter by state'),
+      description: 'List all cd:* issues with their state and priority',
+      inputSchema: {
+        state: TICKET_STATE_SCHEMA.optional().describe('Filter by state'),
+      },
     },
     async ({ state }) => {
       const issues = await listIssuesByLabel('cd:');
@@ -74,12 +94,13 @@ export function registerTools(server: McpServer) {
     },
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
-  server.tool(
+  server.registerTool(
     'cd_get_ticket',
-    'Get full ticket context: issue details, artifacts, and meta',
     {
-      issue_number: z.number().describe('GitHub issue number'),
+      description: 'Get full ticket context: issue details, artifacts, and meta',
+      inputSchema: {
+        issue_number: z.number().describe('GitHub issue number'),
+      },
     },
     async ({ issue_number }) => {
       const issue = await getIssue(issue_number);
@@ -113,15 +134,14 @@ export function registerTools(server: McpServer) {
     },
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
-  server.tool(
+  server.registerTool(
     'cd_transition_state',
-    'Move a ticket to a new state (validates allowed transitions)',
     {
-      issue_number: z.number().describe('GitHub issue number'),
-      new_state: z
-        .enum(['draft', 'refined', 'ready', 'in-progress', 'in-review', 'done', 'blocked'])
-        .describe('Target state'),
+      description: 'Move a ticket to a new state (validates allowed transitions)',
+      inputSchema: {
+        issue_number: z.number().describe('GitHub issue number'),
+        new_state: TICKET_STATE_SCHEMA.describe('Target state'),
+      },
     },
     async ({ issue_number, new_state }) => {
       const issue = await getIssue(issue_number);
@@ -169,11 +189,12 @@ export function registerTools(server: McpServer) {
     },
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
-  server.tool(
+  server.registerTool(
     'cd_pick_next_ticket',
-    'Returns the highest-priority actionable ticket',
-    {},
+    {
+      description: 'Returns the highest-priority actionable ticket',
+      inputSchema: {},
+    },
     async () => {
       const issues = await listIssuesByLabel('cd:');
       const allTickets = issues
@@ -181,16 +202,11 @@ export function registerTools(server: McpServer) {
           const state = getStateFromLabels(issue.labels);
           if (!state) return null;
 
-          const priorityLabel = issue.labels.find((l) => l.startsWith('cd:p'));
-          const priority = priorityLabel
-            ? (priorityLabel.slice(3) as Priority)
-            : ('p2-medium' as Priority);
-
           return {
             number: issue.number,
             title: issue.title,
             state,
-            priority,
+            priority: parsePriority(issue.labels),
             body: issue.body,
             labels: issue.labels,
           };
@@ -225,32 +241,27 @@ export function registerTools(server: McpServer) {
     },
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
-  server.tool(
+  server.registerTool(
     'cd_write_artifact',
-    'Write a numbered artifact to docs/issues/<n>/',
     {
-      issue_number: z.number().describe('GitHub issue number'),
-      type: z
-        .enum(['draft', 'refinement', 'design', 'implementation', 'review', 'adjustment'])
-        .describe('Artifact type'),
-      content: z.string().describe('Artifact content (markdown)'),
+      description: 'Write a numbered artifact to docs/issues/<n>/',
+      inputSchema: {
+        issue_number: z.number().describe('GitHub issue number'),
+        type: ARTIFACT_TYPE_SCHEMA.describe('Artifact type'),
+        content: z.string().describe('Artifact content (markdown)'),
+      },
     },
     async ({ issue_number, type, content }) => {
       let meta = readMeta(issue_number);
       if (!meta) {
         const issue = await getIssue(issue_number);
         const state = getStateFromLabels(issue.labels) ?? 'draft';
-        const priorityLabel = issue.labels.find((l) => l.startsWith('cd:p'));
-        const priority = priorityLabel
-          ? (priorityLabel.slice(3) as Priority)
-          : ('p2-medium' as Priority);
 
         meta = {
           issue: issue_number,
           title: issue.title,
-          state: state,
-          priority,
+          state,
+          priority: parsePriority(issue.labels),
           branch: null,
           pr: null,
           dependencies: parseDependencies(issue.body),
@@ -264,19 +275,20 @@ export function registerTools(server: McpServer) {
         writeMeta(issue_number, meta);
       }
 
-      const path = writeArtifact(issue_number, type as ArtifactType, content);
+      const path = writeArtifact(issue_number, type, content);
       return {
         content: [{ type: 'text' as const, text: `Artifact written: ${path}` }],
       };
     },
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
-  server.tool(
+  server.registerTool(
     'cd_read_artifacts',
-    'Read all artifacts for a ticket',
     {
-      issue_number: z.number().describe('GitHub issue number'),
+      description: 'Read all artifacts for a ticket',
+      inputSchema: {
+        issue_number: z.number().describe('GitHub issue number'),
+      },
     },
     ({ issue_number }) => {
       const artifacts = readArtifacts(issue_number);
@@ -297,19 +309,20 @@ export function registerTools(server: McpServer) {
     },
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
-  server.tool(
+  server.registerTool(
     'cd_block_ticket',
-    'Mark a ticket as blocked and post a question to GitHub',
     {
-      issue_number: z.number().describe('GitHub issue number'),
-      question: z.string().describe('Question for the human'),
+      description: 'Mark a ticket as blocked and post a question to GitHub',
+      inputSchema: {
+        issue_number: z.number().describe('GitHub issue number'),
+        question: z.string().describe('Question for the human'),
+      },
     },
     async ({ issue_number, question }) => {
       const issue = await getIssue(issue_number);
       const currentState = getStateFromLabels(issue.labels);
 
-      if (!currentState || currentState === 'done') {
+      if (!currentState || currentState === 'done' || currentState === 'blocked') {
         return {
           content: [
             {
@@ -335,16 +348,11 @@ export function registerTools(server: McpServer) {
 
       let meta = readMeta(issue_number);
       if (!meta) {
-        const priorityLabel = issue.labels.find((l) => l.startsWith('cd:p'));
-        const priority = priorityLabel
-          ? (priorityLabel.slice(3) as Priority)
-          : ('p2-medium' as Priority);
-
         meta = {
           issue: issue_number,
           title: issue.title,
           state: 'blocked',
-          priority,
+          priority: parsePriority(issue.labels),
           branch: null,
           pr: null,
           dependencies: parseDependencies(issue.body),
@@ -374,11 +382,12 @@ export function registerTools(server: McpServer) {
     },
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
-  server.tool(
+  server.registerTool(
     'cd_unblock_check',
-    'Scan blocked tickets for human replies and unblock them',
-    {},
+    {
+      description: 'Scan blocked tickets for human replies and unblock them',
+      inputSchema: {},
+    },
     async () => {
       const issues = await listIssuesByLabel('cd:');
       const blockedTickets = issues.filter((issue) => issue.labels.includes('cd:blocked'));
@@ -429,45 +438,57 @@ export function registerTools(server: McpServer) {
     },
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
-  server.tool('cd_get_status', 'Show the current ticket board', {}, async () => {
-    const issues = await listIssuesByLabel('cd:');
+  server.registerTool(
+    'cd_get_status',
+    {
+      description: 'Show the current ticket board',
+      inputSchema: {},
+    },
+    async () => {
+      const issues = await listIssuesByLabel('cd:');
 
-    const groups = new Map<string, string[]>();
-    for (const issue of issues) {
-      const state = getStateFromLabels(issue.labels) ?? 'unknown';
-      const existing = groups.get(state) ?? [];
-      existing.push(`  #${String(issue.number)} ${issue.title}`);
-      groups.set(state, existing);
-    }
+      const groups = new Map<string, string[]>();
+      for (const issue of issues) {
+        const state = getStateFromLabels(issue.labels) ?? 'unknown';
+        const existing = groups.get(state) ?? [];
+        existing.push(`  #${String(issue.number)} ${issue.title}`);
+        groups.set(state, existing);
+      }
 
-    const order = ['blocked', 'in-review', 'in-progress', 'ready', 'refined', 'draft', 'done'];
+      const order = ['blocked', 'in-review', 'in-progress', 'ready', 'refined', 'draft', 'done'];
 
-    const sections = order
-      .filter((s) => (groups.get(s)?.length ?? 0) > 0)
-      .map((s) => `**${s.toUpperCase()}**\n${(groups.get(s) ?? []).join('\n')}`)
-      .join('\n\n');
+      const sections = order
+        .filter((s) => (groups.get(s)?.length ?? 0) > 0)
+        .map((s) => `**${s.toUpperCase()}**\n${(groups.get(s) ?? []).join('\n')}`)
+        .join('\n\n');
 
-    return {
-      content: [
-        {
-          type: 'text' as const,
-          text: sections || 'No tickets found.',
-        },
-      ],
-    };
-  });
+      return {
+        content: [
+          {
+            type: 'text' as const,
+            text: sections || 'No tickets found.',
+          },
+        ],
+      };
+    },
+  );
 
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
-  server.tool('cd_ensure_labels', 'Create cd:* labels on the repo if missing', {}, async () => {
-    const result = await ensureLabels();
-    return {
-      content: [
-        {
-          type: 'text' as const,
-          text: `Labels: ${String(result.created)} created, ${String(result.existing)} already existed.`,
-        },
-      ],
-    };
-  });
+  server.registerTool(
+    'cd_ensure_labels',
+    {
+      description: 'Create cd:* labels on the repo if missing',
+      inputSchema: {},
+    },
+    async () => {
+      const result = await ensureLabels();
+      return {
+        content: [
+          {
+            type: 'text' as const,
+            text: `Labels: ${String(result.created)} created, ${String(result.existing)} already existed.`,
+          },
+        ],
+      };
+    },
+  );
 }
