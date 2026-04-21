@@ -297,22 +297,24 @@ Re-runs are safe — every step is idempotent.
 
 ## Build and Release
 
-`dist/` stays gitignored on feature branches. On release:
+`dist/` stays gitignored on feature branches. On release we use npm's `version` lifecycle hook so `dist/` is staged before the commit is created, which means the tag points to a commit that already contains `dist/`.
 
-1. `npm run release` (new script) runs:
-   - `npm version <level>` — bump semver.
-   - `npm run build` — compile.
-   - `git add -f dist` — force-include compiled output.
-   - `git commit --amend --no-edit` — fold dist into the version commit.
-   - `git push --follow-tags` — publish the release tag.
+1. `npm run release` runs:
+   - `npm version patch` — bumps semver in `package.json`.
+   - Before committing, npm runs the `version` lifecycle script (`npm run build && git add -f dist`) which compiles and force-stages `dist/`.
+   - npm then commits `package.json` + staged `dist/` together and creates the tag on that commit.
+   - `git push --follow-tags` publishes both the branch and the tag.
 2. Users install by pointing Claude Code at a release tag; the tag contains `dist/` and everything works.
+
+Earlier iterations used `git commit --amend --no-edit` to fold `dist/` into the version commit, but the tag created by `npm version` pointed at the pre-amend commit and was never moved — the pushed tag had no `dist/`. Using the `version` lifecycle hook avoids the amend entirely.
 
 ### package.json delta
 
-Add one script:
+Add two scripts:
 
 ```json
-"release": "npm version patch && npm run build && git add -f dist && git commit --amend --no-edit && git push --follow-tags"
+"version": "npm run build && git add -f dist",
+"release": "npm version patch && git push --follow-tags"
 ```
 
 ### .gitignore
@@ -362,5 +364,5 @@ Each line in the checklist is evidence that must be captured (screenshot or comm
 ## Risks and Open Questions
 
 - **Plugin system maturity.** The `${CLAUDE_PLUGIN_ROOT}` variable and plugin install-from-git flow must work on the user's Claude Code version. Mitigation: document minimum Claude Code version in README.
-- **Release workflow ergonomics.** The `--amend --no-edit` approach folds `dist/` into the version commit, which is unconventional. Alternative is a two-commit release (version, then dist). Can be revisited if it becomes annoying.
+- **Release workflow ergonomics.** The release uses npm's `version` lifecycle hook to stage `dist/` before the version commit so the tag points to a commit containing the compiled output. This is unconventional but keeps the release a single `npm run release` invocation.
 - **Delegation detection.** Skills assume Claude can detect whether a `superpowers:*` skill is available. This is the standard skill-discovery behaviour; fallback path ensures safety if superpowers is absent.
