@@ -5,6 +5,7 @@ allowed-tools:
   - mcp__cc-server__cc_get_ticket
   - mcp__cc-server__cc_write_artifact
   - mcp__cc-server__cc_transition_state
+  - mcp__cc-server__cc_block_ticket
   - Bash
   - Read
   - Grep

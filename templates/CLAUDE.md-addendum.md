@@ -22,4 +22,3 @@ This project uses claude-create for ticket-driven development.
 - Commits on ticket branches are prefixed `[cc#<n>]`
 - Branch names follow `cc/<n>-<slug>`
 - Priority defaults to `cc:p2-medium`
-- The idempotency marker for `/cc-init` is the `## Working with claude-create` heading — do not rename it.

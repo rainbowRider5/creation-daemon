@@ -14,8 +14,13 @@ Tickets live on GitHub. Artifacts live in `docs/issues/<n>/`. Nine `/cc-*` slash
 ## Install
 
 ```bash
-# From inside any project with a GitHub remote:
-claude code
+# From inside any project with a GitHub remote, launch Claude Code:
+claude
+```
+
+Then inside the session:
+
+```
 /plugin install github:rainbowRider5/claude-create@v0.1.0
 # restart or reload Claude Code
 /cc-init
