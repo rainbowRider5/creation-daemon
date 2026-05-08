@@ -7,11 +7,7 @@
   "plugins": [
     {
       "name": "creation-daemon",
-      "source": {
-        "source": "github",
-        "repo": "rainbowRider5/creation-daemon",
-        "ref": "v0.2.3"
-      },
+      "source": "./",
       "description": "Ticket-driven orchestration layer that turns Claude Code into an autonomous team"
     }
   ]
