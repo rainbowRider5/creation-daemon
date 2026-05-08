@@ -1,0 +1,14 @@
+{
+  "name": "creation-daemon",
+  "owner": {
+    "name": "rainbowRider5",
+    "email": "maciej.drzewiecki@railsware.com"
+  },
+  "plugins": [
+    {
+      "name": "creation-daemon",
+      "source": ".",
+      "description": "Ticket-driven orchestration layer that turns Claude Code into an autonomous team"
+    }
+  ]
+}
